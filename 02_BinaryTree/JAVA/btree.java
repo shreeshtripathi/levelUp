@@ -260,9 +260,266 @@ public class btree {
         System.out.println(dia);
     }
 
+    // levelOrder traversal ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    static void levelOrder01(Node node) {
+        // Implement parent queue and child queue - addlast, removeFirst
+        LinkedList<Node> queue = new LinkedList<>();
+
+        queue.addLast(node);
+
+        while (queue.size() != 0) {
+            // remove and get
+            Node rem = queue.removeFirst();
+            System.out.print(rem.data + " ");
+
+            // push in child queue
+            if (rem.left != null)
+                queue.addLast(rem.left);
+            if (rem.right != null)
+                queue.addLast(rem.right);
+        }
+    }
+
+    // levelorder linewise using two queueus
+    static void levelOrder02(Node node) {
+        // Implement parent queue and child queue - addlast, removeFirst
+        LinkedList<Node> parent = new LinkedList<>();
+        LinkedList<Node> child = new LinkedList<>();
+
+        parent.addLast(node);
+        int level = 0;
+
+        System.out.print("level " + level + " -> ");
+        while (parent.size() != 0) {
+            // remove and get
+            Node rem = parent.removeFirst();
+            System.out.print(rem.data + " ");
+
+            // push in child queue
+            if (rem.left != null)
+                child.addLast(rem.left);
+            if (rem.right != null)
+                child.addLast(rem.right);
+
+            if (parent.size() == 0) {
+                System.out.println();
+                level++;
+                if (child.size() != 0)
+                    System.out.print("level " + level + " -> ");
+
+                // swap parent and child
+                LinkedList<Node> temp = null;
+                temp = parent;
+                parent = child;
+                child = temp;
+            }
+        }
+    }
+
+    // levelorder linewise using sinle queue (null concept)
+    static void levelOrder03(Node node) {
+        LinkedList<Node> queue = new LinkedList<>();
+        queue.addLast(node);
+        queue.add(null);
+
+        int level = 0;
+        System.out.print("level : " + level + " -> ");
+
+        while (queue.size() != 1) {
+            Node rem = queue.removeFirst();
+            System.out.print(rem.data + " ");
+            if (rem.left != null)
+                queue.addLast(rem.left);
+            if (rem.right != null)
+                queue.addLast(rem.right);
+
+            if (queue.getFirst() == null) {
+                queue.removeFirst();
+                queue.addLast(null);
+                level++;
+                if (queue.size() != 1)
+                    System.out.print("\nlevel : " + level + " -> ");
+            }
+        }
+    }
+
+    // levelorder linewise without even using null
+    static void levelOrder04(Node node) {
+        LinkedList<Node> queue = new LinkedList<>();
+
+        queue.addLast(node);
+        int level = 0;
+        while (queue.size() != 0) {
+            System.out.print("level : " + level + " -> ");
+            level++;
+            int size = queue.size();
+
+            while (size-- > 0) {
+                Node rem = queue.removeFirst();
+                System.out.print(rem.data + " ");
+                if (rem.left != null)
+                    queue.addLast(rem.left);
+                if (rem.right != null)
+                    queue.addLast(rem.right);
+            }
+            System.out.println();
+        }
+    }
+
+    static void levelOrder(Node node) {
+        // levelOrder01(node);
+        // levelOrder02(node);
+        // levelOrder03(node);
+        // levelOrder04(node);
+    }
+
+    // view~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    static void leftView(Node node) {
+        LinkedList<Node> queue = new LinkedList<>();
+
+        queue.addLast(node);
+
+        while (queue.size() != 0) {
+            int size = queue.size();
+            System.out.println(queue.getFirst().data);
+
+            while (size-- > 0) {
+                Node rem = queue.removeFirst();
+                if (rem.left != null)
+                    queue.addLast(rem.left);
+                if (rem.right != null)
+                    queue.addLast(rem.right);
+            }
+        }
+    }
+
+    static void rightView(Node node) {
+        LinkedList<Node> queue = new LinkedList<>();
+
+        queue.addLast(node);
+
+        while (queue.size() != 0) {
+            int size = queue.size();
+            Node prev = null;
+            while (size-- > 0) {
+                Node rem = queue.removeFirst();
+                prev = rem;
+
+                if (rem.left != null)
+                    queue.addLast(rem.left);
+                if (rem.right != null)
+                    queue.addLast(rem.right);
+            }
+            System.out.println(prev.data);
+        }
+    }
+
+    static int leftmin = 0;
+    static int rightmax = 0;
+
+    static void width(Node node, int level) {
+        if (node == null)
+            return;
+
+        leftmin = Math.min(leftmin, level);
+        rightmax = Math.max(rightmax, level);
+
+        width(node.left, level - 1);
+        width(node.right, level + 1);
+    }
+
+    static class voPair {
+        Node node;
+        int idx;
+
+        voPair(Node node, int idx) {
+            this.node = node;
+            this.idx = idx;
+        }
+    }
+
+    static void verticalOrder(Node node) {
+        // make leftmin and rightmax using width function
+        width(node, 0);
+        // make array
+        ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+        int n = rightmax - leftmin + 1;
+        for(int i = 0; i < n; i++) {
+            ans.add(new ArrayList<>());
+        }
+        // now apply levelOrder (OR BFS)
+
+        LinkedList<voPair> queue = new LinkedList<>();
+        queue.addLast(new voPair(node, -leftmin));
+
+        while (queue.size() != 0) {
+            int size = queue.size();
+            while (size-- > 0) {
+                voPair rem = queue.removeFirst();
+                ans.get(rem.idx).add(rem.node.data);
+                if (rem.node.left != null) {
+                    queue.addLast(new voPair(rem.node.left, rem.idx - 1));
+                }
+                if (rem.node.right != null) {
+                    queue.addLast(new voPair(rem.node.right, rem.idx + 1));
+                }
+            }
+        }
+
+        for(int i = 0; i < ans.size(); i++) {
+            ArrayList<Integer> list = ans.get(i);
+            System.out.print(i + " -> ");
+            for(int val : list) {
+                System.out.print(val + ", ");
+            }
+            System.out.println();
+        }
+    }
+
+    static void verticalOrderSum(Node node) {
+        // make leftmin and rightmax using width function
+        width(node, 0);
+        // make array
+        int n = rightmax - leftmin + 1;
+        int[] ans = new int[n];
+        // now apply levelOrder (OR BFS)
+
+        LinkedList<voPair> queue = new LinkedList<>();
+        queue.addLast(new voPair(node, -leftmin));
+
+        while (queue.size() != 0) {
+            int size = queue.size();
+            while (size-- > 0) {
+                voPair rem = queue.removeFirst();
+                ans[rem.idx] = ans[rem.idx] + rem.node.data;
+                if (rem.node.left != null) {
+                    queue.addLast(new voPair(rem.node.left, rem.idx - 1));
+                }
+                if (rem.node.right != null) {
+                    queue.addLast(new voPair(rem.node.right, rem.idx + 1));
+                }
+            }
+        }
+
+        for(int i = 0; i < ans.length; i++) {
+            System.out.println(i + " -> " + ans[i]);
+        }
+    }
+
+    static void view(Node node) {
+        // leftView(node);
+        // rightView(node);
+        verticalOrder(node);
+        verticalOrderSum(node);
+    }
+
     static void solve() {
-        int[] arr = { 10, 20, 40, -1, -1, 50, 80, -1, -1, 90, -1, -1, 30, 60, 100, -1, -1, -1, 70, 110, -1, -1, 120, -1,
-                -1 };
+        // int[] arr = { 10, 20, 40, -1, -1, 50, 80, -1, -1, 90, -1, -1, 30, 60, 100,
+        // -1, -1, -1, 70, 110, -1, -1, 120, -1,
+        // -1 };
+
+        int[] arr = { 11, 6, 4, -1, 5, -1, -1, 8, -1, 10, -1, -1, 19, 17, -1, -1, 43, 31, -1, -1, 49, -1, -1 };
         Node root = construct(arr);
         // display(root);
         // System.out.println("Height : " + height(root));
@@ -274,7 +531,11 @@ public class btree {
         // postOrder(root);
 
         // set1(root);
-        diameter(root);
+        // diameter(root);
+
+        // levelOrder(root);
+
+        view(root);
     }
 
     public static void main(String[] args) {
