@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class btree {
+public class l001btree {
     static class Node {
         int data;
         Node left = null;
@@ -445,7 +445,7 @@ public class btree {
         // make array
         ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
         int n = rightmax - leftmin + 1;
-        for(int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i++) {
             ans.add(new ArrayList<>());
         }
         // now apply levelOrder (OR BFS)
@@ -467,10 +467,10 @@ public class btree {
             }
         }
 
-        for(int i = 0; i < ans.size(); i++) {
+        for (int i = 0; i < ans.size(); i++) {
             ArrayList<Integer> list = ans.get(i);
             System.out.print(i + " -> ");
-            for(int val : list) {
+            for (int val : list) {
                 System.out.print(val + ", ");
             }
             System.out.println();
@@ -502,16 +502,75 @@ public class btree {
             }
         }
 
-        for(int i = 0; i < ans.length; i++) {
+        for (int i = 0; i < ans.length; i++) {
             System.out.println(i + " -> " + ans[i]);
         }
+    }
+
+    static void bottomView(Node node) {
+        leftmin = rightmax = 0;
+        width(node, 0);
+
+        int[] ans = new int[rightmax - leftmin + 1];
+
+        LinkedList<voPair> queue = new LinkedList<>();
+        queue.addLast(new voPair(node, -leftmin));
+
+        while (queue.size() != 0) {
+            int size = queue.size();
+
+            while (size-- > 0) {
+                voPair rem = queue.removeFirst();
+                ans[rem.idx] = rem.node.data;
+                if (rem.node.left != null)
+                    queue.addLast(new voPair(rem.node.left, rem.idx - 1));
+                if (rem.node.right != null)
+                    queue.addLast(new voPair(rem.node.right, rem.idx + 1));
+            }
+        }
+
+        for (int val : ans)
+            System.out.print(val + " ");
+    }
+
+    static void topView(Node node) {
+        leftmin = rightmax = 0;
+        width(node, 0);
+
+        int[] ans = new int[rightmax - leftmin + 1];
+        // mark the empty array with some number, suppose it is -infinity
+        Arrays.fill(ans, Integer.MIN_VALUE);
+
+        LinkedList<voPair> queue = new LinkedList<>();
+        queue.addLast(new voPair(node, -leftmin));
+
+        while (queue.size() != 0) {
+            int size = queue.size();
+
+            while (size-- > 0) {
+                voPair rem = queue.removeFirst();
+                if (ans[rem.idx] == Integer.MIN_VALUE)
+                    ans[rem.idx] = rem.node.data;
+
+                if (rem.node.left != null)
+                    queue.addLast(new voPair(rem.node.left, rem.idx - 1));
+                if (rem.node.right != null)
+                    queue.addLast(new voPair(rem.node.right, rem.idx + 1));
+            }
+        }
+
+        for (int val : ans)
+            System.out.print(val + " ");
     }
 
     static void view(Node node) {
         // leftView(node);
         // rightView(node);
-        verticalOrder(node);
-        verticalOrderSum(node);
+        // verticalOrder(node);
+        // verticalOrderSum(node);
+        // display(node);
+        // bottomView(node);
+        // topView(node);
     }
 
     static void solve() {
@@ -519,7 +578,7 @@ public class btree {
         // -1, -1, -1, 70, 110, -1, -1, 120, -1,
         // -1 };
 
-        int[] arr = { 11, 6, 4, -1, 5, -1, -1, 8, -1, 10, -1, -1, 19, 17, -1, -1, 43, 31, -1, -1, 49, -1, -1 };
+        int[] arr = { 11, 6, 4, -1, 5, -1, -1, 8, -1, 10, -1, -1, 19, 17, -1, -1, 43, 30, -1, -1, 49, -1, -1 };
         Node root = construct(arr);
         // display(root);
         // System.out.println("Height : " + height(root));

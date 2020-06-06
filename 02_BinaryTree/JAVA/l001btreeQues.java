@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class questions {
+public class l001btreeQues {
 
     public class TreeNode {
         int val;
