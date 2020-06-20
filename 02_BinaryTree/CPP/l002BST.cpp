@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <stack>
 
 using namespace std;
 
@@ -104,22 +105,114 @@ void basic(Node *node)
 }
 
 // return the data in range of a, b
-void dataInRange_01(Node* node, int a, int b, vector<int>& ans) {
-    if(node == nullptr) return;
+void dataInRange_01(Node *node, int a, int b, vector<int> &ans)
+{
+    if (node == nullptr)
+        return;
 
     dataInRange_01(node->left, a, b, ans);
-    if(node->data >= a && node->data <= b) {
-
+    if (node->data >= a && node->data <= b)
+    {
     }
     dataInRange_01(node->right, a, b, ans);
 }
 
+// oroot = original root
+void targetSumPair_1(Node *node, Node *oroot, int target)
+{
+    if (node == NULL)
+        return;
+
+    int val1 = node->data;
+    int val2 = target - val1;
+
+    if (val1 > val2 && find(oroot, val2) == true)
+        cout << val1 << " + " << val2 << " = " << (val1 + val2) << endl;
+
+    targetSumPair_1(node->left, oroot, target);
+    targetSumPair_1(node->right, oroot, target);
+}
+
+void targetSumPair_2(Node node, int target)
+{
+    // make a helper function of INORDER Traversal(In Inorder it is sorted array)
+    // make two pointer and implement it for target sum
+}
+
+// target sum pair using two stack
+void insert_left_most(Node *node, stack<Node *> &st)
+{
+    while (node != NULL)
+    {
+        st.push(node);
+        node = node->left;
+    }
+}
+
+void insert_right_most(Node *node, stack<Node *> &st)
+{
+    while (node != NULL)
+    {
+        st.push(node);
+        node = node->right;
+    }
+}
+
+void targetSumPair_3(Node *node, int target)
+{
+    stack<Node *> left;
+    stack<Node *> right;
+
+    insert_left_most(node, left);
+    insert_right_most(node, right);
+
+    while (left.size() != 0 && right.size() != 0)
+    {
+        int val1 = left.top()->data;
+        int val2 = right.top()->data;
+
+        if (val1 >= val2)
+        {
+            left.pop();
+            right.pop();
+        }
+        else if (val1 + val2 < target)
+        {
+            Node *rem = left.top();
+            left.pop();
+            insert_left_most(rem->right, left);
+        }
+        else if (val1 + val2 > target)
+        {
+            Node *rem = right.top();
+            right.pop();
+            insert_right_most(rem->left, right);
+        }
+        else
+        {
+            cout << val1 << " + " << val2 << " = " << val1 + val2 << endl;
+            insert_left_most(left.top()->right, left);
+            insert_right_most(right.top()->left, right);
+            left.pop();
+            right.pop();
+        }
+    }
+}
+
+void targetSumPair(Node *node)
+{
+    int target = 100;
+    targetSumPair_1(node, node, target);
+    cout << "\n \n";
+    targetSumPair_3(node, target);
+}
 
 void solve()
 {
-    vector<int> arr{10, 20, 30, 40, 50, 6, 70, 80, 90, 100, 110};
+    vector<int> arr{10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110};
     Node *root = constructBST(arr, 0, arr.size() - 1);
-    basic(root);
+    // basic(root);
+    targetSumPair(root);
 }
 
 int main(int argc, char **argv)

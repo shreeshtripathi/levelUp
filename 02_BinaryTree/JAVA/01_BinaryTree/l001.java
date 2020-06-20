@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class l001btree {
+public class l001 {
     static class Node {
         int data;
         Node left = null;
@@ -79,7 +79,7 @@ public class l001btree {
         return find(node.left, data) || find(node.right, data);
     }
 
-    // ~~~~~~~~~~~~~~~~~~~~~~~TRAVERSAL~~~~~~~~~~~~~~~~~~~~~~~~
+    // =========================TRAVERSAL=========================
 
     static void preOrder(Node node) {
         if (node == null)
@@ -191,7 +191,7 @@ public class l001btree {
 
     }
 
-    // diameter~~~~~~~~~~~~~~~~~~~~~~
+    // diameter=================================================
     // o(n ^ 2) approach for diamter
     static int diameter1(Node node) {
         if (node == null)
@@ -260,7 +260,7 @@ public class l001btree {
         System.out.println(dia);
     }
 
-    // levelOrder traversal ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // levelOrder traversal =================================================
     static void levelOrder01(Node node) {
         // Implement parent queue and child queue - addlast, removeFirst
         LinkedList<Node> queue = new LinkedList<>();
@@ -373,7 +373,7 @@ public class l001btree {
         // levelOrder04(node);
     }
 
-    // view~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // view=================================================
 
     static void leftView(Node node) {
         LinkedList<Node> queue = new LinkedList<>();
@@ -563,6 +563,77 @@ public class l001btree {
             System.out.print(val + " ");
     }
 
+    static int leftDmin = 0;
+
+    static void diagonalWidth(Node node, int l) {
+        if (node == null)
+            return;
+
+        leftDmin = Math.min(leftDmin, l);
+
+        diagonalWidth(node.left, l - 1);
+        diagonalWidth(node.right, l);
+    }
+
+    static void diagonalView(Node node) {
+        diagonalWidth(node, 0);
+        ArrayList<ArrayList<Integer>> ans = new ArrayList<>();
+        int n = -leftDmin;
+        for (int i = 0; i <= n; i++) {
+            ans.add(new ArrayList<>());
+        }
+
+        LinkedList<voPair> queue = new LinkedList<>(); // addLast, removeFirst
+        queue.addLast(new voPair(node, 0));
+
+        while (queue.size() > 0) {
+            int size = queue.size();
+
+            while (size-- > 0) {
+                voPair rem = queue.removeFirst();
+                ans.get(rem.idx).add(rem.node.data);
+
+                if (rem.node.left != null)
+                    queue.addLast(new voPair(rem.node.left, rem.idx + 1));
+                if (rem.node.right != null)
+                    queue.addLast(new voPair(rem.node.right, rem.idx));
+
+            }
+        }
+
+        for(ArrayList<Integer> arr : ans) {
+            System.out.println(arr);
+        }
+    }
+
+    static void diagonalSum(Node node) {
+        diagonalWidth(node, 0);
+        int n = -leftDmin;
+        int[] ans = new int[n + 1];
+
+        LinkedList<voPair> queue = new LinkedList<>(); // addLast, removeFirst
+        queue.addLast(new voPair(node, 0));
+
+        while (queue.size() > 0) {
+            int size = queue.size();
+
+            while (size-- > 0) {
+                voPair rem = queue.removeFirst();
+                ans[rem.idx] += rem.node.data;
+
+                if (rem.node.left != null)
+                    queue.addLast(new voPair(rem.node.left, rem.idx + 1));
+                if (rem.node.right != null)
+                    queue.addLast(new voPair(rem.node.right, rem.idx));
+
+            }
+        }
+
+        for(int val : ans) {
+            System.out.println(val);
+        }
+    }
+
     static void view(Node node) {
         // leftView(node);
         // rightView(node);
@@ -571,6 +642,163 @@ public class l001btree {
         // display(node);
         // bottomView(node);
         // topView(node);
+        diagonalView(node);
+        diagonalSum(node);
+    }
+
+    // Iterative Traversal=================================================
+    static class TPair {
+        Node node = null;
+        boolean self;
+        boolean left;
+        boolean right;
+
+        TPair(Node node) {
+            this.node = node;
+            self = left = right = false;
+        }
+    }
+
+    static void Itr_PreOrder(Node node) {
+        Stack<TPair> st = new Stack<>();
+        st.push(new TPair(node));
+
+        while (st.size() != 0) {
+            TPair top = st.peek();
+            if (top.self == false) {
+                top.self = true;
+                System.out.print(top.node.data + " ");
+            } else if (top.left == false) {
+                top.left = true;
+                if (top.node.left != null) {
+                    st.push(new TPair(top.node.left));
+                }
+            } else if (top.right == false) {
+                top.right = true;
+                if (top.node.right != null) {
+                    st.push(new TPair(top.node.right));
+                }
+            } else {
+                st.pop();
+            }
+        }
+        System.out.println();
+    }
+
+    static void Itr_InOrder(Node node) {
+        Stack<TPair> st = new Stack<>();
+        st.push(new TPair(node));
+
+        while (st.size() != 0) {
+            TPair top = st.peek();
+            if (top.left == false) {
+                top.left = true;
+                if (top.node.left != null) {
+                    st.push(new TPair(top.node.left));
+                }
+            } else if (top.self == false) {
+                top.self = true;
+                System.out.print(top.node.data + " ");
+            } else if (top.right == false) {
+                top.right = true;
+                if (top.node.right != null) {
+                    st.push(new TPair(top.node.right));
+                }
+            } else {
+                st.pop();
+            }
+        }
+        System.out.println();
+    }
+
+    static void Itr_PostOrder(Node node) {
+        Stack<TPair> st = new Stack<>();
+        st.push(new TPair(node));
+
+        while (st.size() != 0) {
+            TPair top = st.peek();
+            if (top.left == false) {
+                top.left = true;
+                if (top.node.left != null) {
+                    st.push(new TPair(top.node.left));
+                }
+            } else if (top.right == false) {
+                top.right = true;
+                if (top.node.right != null) {
+                    st.push(new TPair(top.node.right));
+                }
+            } else if (top.self == false) {
+                top.self = true;
+                System.out.print(top.node.data + " ");
+            } else {
+                st.pop();
+            }
+        }
+        System.out.println();
+    }
+
+    static void ItrTraversal(Node node) {
+        Itr_PreOrder(node);
+        // Itr_InOrder(node);
+        // Itr_PostOrder(node);
+    }
+
+    // Morris
+    // Traversal=================================================
+    static Node rightMost_of_leftNode(Node lnode, Node curr) {
+        while (lnode.right != null && lnode.right != curr) {
+            lnode = lnode.right;
+        }
+        return lnode;
+    }
+
+    static void Morris_InOrder(Node node) {
+        Node curr = node;
+        while (curr != null) {
+            if (curr.left == null) {
+                System.out.print(curr.data + " ");
+                curr = curr.right;
+            } else {
+                Node lnode = curr.left;
+                Node rightMost = rightMost_of_leftNode(lnode, curr);
+                if (rightMost.right == null) { // make a thread
+                    rightMost.right = curr;
+                    curr = curr.left;
+                } else { // break a thread
+                    rightMost.right = null;
+                    System.out.print(curr.data + " ");
+                    curr = curr.right;
+                }
+            }
+        }
+        System.out.println();
+    }
+
+    static void Morris_PreOrder(Node node) {
+        Node curr = node;
+        while (curr != null) {
+            if (curr.left == null) {
+                System.out.print(curr.data + " ");
+                curr = curr.right;
+            } else {
+                Node lnode = curr.left;
+                Node rightMost = rightMost_of_leftNode(lnode, curr);
+                if (rightMost.right == null) { // make a thread
+                    rightMost.right = curr;
+                    System.out.print(curr.data + " ");
+                    curr = curr.left;
+                } else { // break a thread
+                    rightMost.right = null;
+                    curr = curr.right;
+                }
+            }
+        }
+        System.out.println();
+    }
+
+    static void morris(Node node) {
+        // Morris_InOrder(node);
+        Morris_PreOrder(node);
     }
 
     static void solve() {
@@ -580,7 +808,7 @@ public class l001btree {
 
         int[] arr = { 11, 6, 4, -1, 5, -1, -1, 8, -1, 10, -1, -1, 19, 17, -1, -1, 43, 30, -1, -1, 49, -1, -1 };
         Node root = construct(arr);
-        // display(root);
+        display(root);
         // System.out.println("Height : " + height(root));
         // System.out.println("Minimum : " + myMin(root));
         // System.out.println("Maximum : " + myMax(root));
@@ -595,6 +823,9 @@ public class l001btree {
         // levelOrder(root);
 
         view(root);
+        // ItrTraversal(root);
+        // morris(root);
+
     }
 
     public static void main(String[] args) {

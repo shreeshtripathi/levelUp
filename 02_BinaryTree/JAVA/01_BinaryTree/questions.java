@@ -1,17 +1,26 @@
 import java.util.*;
 
-public class l001btreeQues {
+public class questions {
 
     public class TreeNode {
         int val;
         TreeNode left;
         TreeNode right;
+
+        TreeNode(int val) {
+            this.val = val;
+        }
+
     }
 
     public class Node {
         int data;
         Node left;
         Node right;
+
+        Node(int data) {
+            this.data = data;
+        }
     }
 
     // Leetcode = 863 k away from
@@ -330,5 +339,154 @@ public class l001btreeQues {
     public int maxPathSum(TreeNode root) {
         maxPathSum_(root);
         return max_nodeToNodeSum;
+    }
+
+    // Leetcode 173 BST Iterator~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    class BSTIterator {
+
+        private Stack<TreeNode> st = null;
+
+        public BSTIterator(TreeNode root) {
+            st = new Stack<>();
+            push_All_left_of_right(root);
+        }
+
+        private void push_All_left_of_right(TreeNode node) {
+            while (node != null) {
+                st.push(node);
+                node = node.left;
+            }
+        }
+
+        public int next() {
+            TreeNode rem = st.pop();
+            push_All_left_of_right(rem.right);
+            return rem.val;
+        }
+
+        public boolean hasNext() {
+            return st.size() != 0;
+        }
+    }
+
+    // Leetcode 105 Construct Binary Tree from Preorder and Inorder
+    // Traversal~~~~~~~~~~~~~
+    private TreeNode construction_PreIn(int[] pre, int pst, int pend, int[] in, int ist, int iend) {
+        if (pst > pend || ist > iend)
+            return null;
+
+        TreeNode node = new TreeNode(pre[pst]);
+
+        // find root node in INORDER
+        int idx = ist;
+        while (in[idx] != pre[pst])
+            idx++;
+
+        // total element
+        int tele = idx - ist;
+        node.left = construction_PreIn(pre, pst + 1, pst + tele, in, ist, idx - 1);
+        node.right = construction_PreIn(pre, pst + tele + 1, pend, in, idx + 1, iend);
+
+        return node;
+    }
+
+    public TreeNode buildTree_(int[] pre, int[] in) {
+        return construction_PreIn(pre, 0, pre.length - 1, in, 0, in.length - 1);
+    }
+
+    // Leetcode 106 Construct Binary Tree from Inorder and Postorder Traversal
+    // ~~~~~~~~~~~~~~~~
+    private TreeNode construction_PostIn(int[] post, int pst, int pend, int[] in, int ist, int iend) {
+        if (ist > iend || pst > pend)
+            return null;
+
+        TreeNode node = new TreeNode(post[pend]);
+
+        int idx = ist;
+        while (in[idx] != post[pend])
+            idx++;
+
+        int tele = idx - ist;
+        node.left = construction_PostIn(post, pst, pst + tele - 1, in, ist, idx - 1);
+        node.right = construction_PostIn(post, pst + tele, pend - 1, in, idx + 1, iend);
+
+        return node;
+    }
+
+    public TreeNode buildTree_1(int[] in, int[] post) {
+        return construction_PostIn(post, 0, post.length - 1, in, 0, in.length - 1);
+    }
+
+    // Leetcode 889 Construct Binary Tree from Preorder and Postorder
+    // Traversal~~~~~~~~~~~
+    private TreeNode construction_PrePost(int[] pre, int prest, int prend, int[] po, int post, int poend) {
+        if (prest > prend || post > poend)
+            return null;
+
+        TreeNode node = new TreeNode(pre[prest]);
+
+        if (prest == prend) {
+            return node;
+        }
+
+        int indx = post;
+        while (po[indx] != pre[prest + 1])
+            indx++;
+
+        int tele = indx - post + 1;
+
+        node.left = construction_PrePost(pre, prest + 1, prest + tele, po, post, indx);
+        node.right = construction_PrePost(pre, prest + tele + 1, prend, po, indx + 1, poend - 1);
+
+        return node;
+    }
+
+    public TreeNode constructFromPrePost(int[] pre, int[] post) {
+        return construction_PrePost(pre, 0, pre.length - 1, post, 0, post.length - 1);
+    }
+
+    // https://practice.geeksforgeeks.org/problems/construct-tree-from-inorder-and-levelorder/1
+    // construction from levelorder Inorder
+    Node construction_InLevel(ArrayList<Integer> level, int[] in, int ist, int iend) {
+        if (ist > iend)
+            return null;
+
+        Node node = new Node(level.get(0));
+
+        if (level.size() == 1)
+            return node;
+
+        int indx = ist;
+        while (in[indx] != level.get(0))
+            indx++;
+
+        ArrayList<Integer> llevel = new ArrayList<>(); // left level
+        ArrayList<Integer> rlevel = new ArrayList<>(); // right level
+
+        HashSet<Integer> set = new HashSet<>();
+        for (int i = ist; i < indx; i++)
+            set.add(in[i]);
+
+        for (int i = 1; i < level.size(); i++) {
+            if (set.contains(level.get(i)) == true) { // if present then add in llevel
+                llevel.add(level.get(i));
+            } else { // otherwise, add in rlevel
+                rlevel.add(level.get(i));
+            }
+        }
+
+        node.left = construction_InLevel(llevel, in, ist, indx - 1);
+        node.right = construction_InLevel(rlevel, in, indx + 1, iend);
+
+        return node;
+    }
+
+    Node buildTree(int inord[], int l[]) {
+        ArrayList<Integer> level = new ArrayList<>();
+
+        for (int val : l)
+            level.add(val);
+
+        return construction_InLevel(level, inord, 0, inord.length - 1);
     }
 }
