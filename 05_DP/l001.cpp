@@ -326,7 +326,7 @@ int climbStairs(int n)
 	// vector<int> dp(n + 1, 0);
 	// return climbStairs_01(n, dp);
 	// return climbStairs_DP(n, dp);
-	// return climbStairs_btr(n);
+	return climbStairs_btr(n);
 }
 
 // Leetcode 746. Min Cost Climbing Stairs=====================================
@@ -373,11 +373,113 @@ int minCostClimbingStairs(vector<int> &cost)
 	return minCostClimbingStairsDP(n, dp, cost);
 }
 
+// friends Pairing problem==================================================
+// Link : https://practice.geeksforgeeks.org/problems/friends-pairing-problem/0
+int friendsPairProblem_01(int n, vector<int> &dp)
+{
+	if (n <= 1)
+		return dp[n] = 1;
+
+	if (dp[n] != 0)
+		return dp[n];
+
+	int single = friendsPairProblem_01(n - 1, dp);
+	int pair = friendsPairProblem_01(n - 2, dp) * (n - 1);
+
+	return dp[n] = single + pair;
+}
+
+int friendsPairProblem_DP(int N, vector<int> &dp)
+{
+	for (int n = 0; n <= N; n++)
+	{
+		if (n <= 1)
+		{
+			dp[n] = 1;
+			continue;
+		}
+
+		int single = dp[n - 1];
+		int pair = dp[n - 2] * (n - 1);
+
+		dp[n] = single + pair;
+	}
+	return dp[N];
+}
+
+void friendsPairProblem()
+{
+	int n = 10;
+	vector<int> dp(n + 1, 0);
+	cout << friendsPairProblem_01(n, dp) << endl;
+
+	display(dp);
+}
+
+int minPathSum_01(int sr, int sc, int er, int ec,
+				  vector<vector<int>> &dp, vector<vector<int>> &grid)
+{
+	if (sr == er && sc == ec)
+		return dp[sr][sc] = grid[sr][sc];
+
+	if (dp[sr][sc] != 0)
+		return dp[sr][sc];
+	int right = 1e8, down = 1e8;
+	if (sc + 1 <= ec)
+		right = minPathSum_01(sr, sc + 1, er, ec, dp, grid);
+
+	if (sr + 1 <= er)
+		down = minPathSum_01(sr + 1, sc, er, ec, dp, grid);
+
+	return dp[sr][sc] = min(right, down) + grid[sr][sc];
+}
+
+int minPathSum_DP(int sr, int sc, int er, int ec,
+				  vector<vector<int>> &dp, vector<vector<int>> &grid)
+{
+	for (sr = er; sr >= 0; sr--)
+	{
+		for (sc = ec; sc >= 0; sc--)
+		{
+			if (sr == er && sc == ec)
+			{
+				dp[sr][sc] = grid[sr][sc];
+				continue;
+			}
+
+			int right = 1e8, down = 1e8;
+
+			if (sc + 1 <= ec)
+				right = dp[sr][sc + 1];
+
+			if (sr + 1 <= er)
+				down = dp[sr + 1][sc];
+
+			dp[sr][sc] = min(right, down) + grid[sr][sc];
+		}
+	}
+	return dp[0][0];
+}
+
+int minPathSum(vector<vector<int>> &grid)
+{
+	int n = grid.size();
+	int m = grid[0].size();
+	vector<vector<int>> dp(n, vector<int>(m, 0));
+	// return minPathSum_01(0, 0, n - 1, m - 1, dp, grid);
+	return minPathSum_DP(0, 0, n - 1, m - 1, dp, grid);
+}
+
+void set2()
+{
+	// friendsPairProblem();
+}
 
 void solve()
 {
 	// set1();
-	pathSet();
+	// pathSet();
+	set2();
 }
 
 int main(int argc, char **argv)
