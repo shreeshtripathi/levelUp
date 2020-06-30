@@ -416,6 +416,7 @@ void friendsPairProblem()
 	display(dp);
 }
 
+// Leetcode 64. Minimum Path Sum==================================================
 int minPathSum_01(int sr, int sc, int er, int ec,
 				  vector<vector<int>> &dp, vector<vector<int>> &grid)
 {
@@ -470,10 +471,400 @@ int minPathSum(vector<vector<int>> &grid)
 	return minPathSum_DP(0, 0, n - 1, m - 1, dp, grid);
 }
 
+//==========================================================================================
+// Goldmine link: https://practice.geeksforgeeks.org/problems/gold-mine-problem/0
+int goldmine_01(int sr, int sc, vector<vector<int>> &mine, vector<vector<int>> &dp)
+{
+	if (sc == mine[0].size() - 1)
+		return dp[sr][sc] = mine[sr][sc];
+
+	if (dp[sr][sc] != 0)
+		return dp[sr][sc];
+
+	int dir[3][2] = {{-1, 1}, {0, 1}, {1, 1}};
+
+	int maxGold = 0;
+	for (int i = 0; i < 3; i++)
+	{
+		int x = dir[i][0] + sr;
+		int y = dir[i][1] + sc;
+
+		if (x >= 0 && y >= 0 && x < mine.size() && y < mine[0].size())
+			maxGold = max(maxGold, goldmine_01(x, y, mine, dp));
+	}
+
+	return dp[sr][sc] = maxGold + mine[sr][sc];
+}
+
+int goldmine_DP(int sr, int sc, vector<vector<int>> &mine, vector<vector<int>> &dp)
+{
+	// DP
+	for (sc = mine[0].size() - 1; sc >= 0; sc--)
+	{
+		for (sr = 0; sr < mine.size(); sr++)
+		{
+			if (sc == mine[0].size() - 1)
+			{
+				dp[sr][sc] = mine[sr][sc];
+				continue;
+			}
+
+			int dir[3][2] = {{-1, 1}, {0, 1}, {1, 1}};
+
+			int maxGold = 0;
+			for (int i = 0; i < 3; i++)
+			{
+				int x = dir[i][0] + sr;
+				int y = dir[i][1] + sc;
+
+				if (x >= 0 && y >= 0 && x < mine.size() && y < mine[0].size())
+					maxGold = max(maxGold, dp[x][y]);
+			}
+
+			dp[sr][sc] = maxGold + mine[sr][sc];
+		}
+	}
+
+	int res = 0;
+	for (int r = 0; r < mine.size(); r++)
+		res = max(res, dp[r][0]);
+
+	return res;
+}
+
+void goldmine()
+{
+	vector<vector<int>> mine = {{1, 3, 1, 5},
+								{2, 2, 4, 1},
+								{5, 0, 2, 3},
+								{0, 6, 1, 2}};
+
+	vector<vector<int>> dp(mine.size(), vector<int>(mine[0].size(), 0));
+
+	// for (int r = 0; r < mine.size(); r++)
+	// 	goldmine_01(r, 0, mine, dp);
+
+	// int res = 0;
+	// for (int r = 0; r < mine.size(); r++)
+	// 	res = max(res, dp[r][0]);
+
+	// cout << res << endl;
+	cout << goldmine_DP(0, 0, mine, dp) << endl;
+	display2D(dp);
+}
+
+//=================================================================================================
+// GFG link : https://www.geeksforgeeks.org/count-number-of-ways-to-partition-a-set-into-k-subsets/
+int countWays_01(int n, int k, vector<vector<int>> &dp)
+{
+	if (n < k)
+		return 0;
+	if (n == k || k == 1)
+		return dp[k][n] = 1;
+
+	if (dp[k][n] != 0)
+		return dp[k][n];
+
+	int newGroup = countWays_01(n - 1, k - 1, dp);
+	int existingGroup = countWays_01(n - 1, k, dp) * k;
+
+	return dp[k][n] = newGroup + existingGroup;
+}
+
+int countWays_DP(int n, int k, vector<vector<int>> &dp)
+{
+	int N = n, K = k;
+	for (k = 1; k <= K; k++)
+	{
+		for (n = k; n <= N; n++)
+		{
+			if (n == k || k == 1)
+			{
+				dp[k][n] = 1;
+				continue;
+			}
+
+			int newGroup = dp[n - 1][k - 1];
+			int existingGroup = dp[n - 1][k] * k;
+
+			dp[k][n] = newGroup + existingGroup;
+		}
+	}
+	return dp[K][N];
+}
+
+void countWays()
+{
+	int n = 3;
+	int k = 1;
+
+	vector<vector<int>> dp(k + 1, vector<int>(n + 1, 0));
+
+	cout << countWays_01(n, k, dp) << endl;
+	// cout << countWays_DP(n, k, dp) << endl;
+
+	display2D(dp);
+}
+
 void set2()
 {
 	// friendsPairProblem();
+	// goldmine();
+	countWays();
 }
+
+//===================================================================================
+// Practice Link: https://practice.geeksforgeeks.org/problems/mobile-numeric-keypad/0
+
+//Substring and Subsequence Series.==================================================
+
+vector<vector<bool>> isPlaindromeSubstring(string &str)
+{
+	int n = str.length();
+	vector<vector<bool>> dp(n, vector<bool>(n, 0));
+	for (int gap = 0; gap < n; gap++)
+	{
+		for (int i = 0, j = gap; j < n; i++, j++)
+		{
+			if (gap == 0)
+				dp[i][j] = true;
+			else if (gap == 1 && str[i] == str[j])
+				dp[i][j] = true;
+			else
+				dp[i][j] = str[i] == str[j] && dp[i + 1][j - 1];
+		}
+	}
+
+	return dp;
+}
+
+//Leetcode 5. Longest Palindromic Substring==========================================
+string longestPlaindromeSubstring(string str)
+{
+	int n = str.length();
+	vector<vector<int>> dp(n, vector<int>(n, 0));
+
+	int maxLen = 0;
+	int si = 0, ei = 0;
+	for (int gap = 0; gap < n; gap++)
+	{
+		for (int i = 0, j = gap; j < n; i++, j++)
+		{
+			if (gap == 0)
+				dp[i][j] = 1;
+			else if (gap == 1 && str[i] == str[j])
+				dp[i][j] = 2;
+			else if (str[i] == str[j] && dp[i + 1][j - 1] != 0)
+				dp[i][j] = gap + 1;
+
+			if (dp[i][j] > maxLen)
+			{
+				maxLen = dp[i][j];
+				si = i;
+				ei = j;
+			}
+		}
+	}
+
+	return str.substr(si, (ei - si + 1));
+}
+
+//===================================================================================
+//Leetcode 647.Palindromic Substrings================================================
+int countAllPlaindromicSubstring(string str)
+{
+	int n = str.length();
+	vector<vector<int>> dp(n, vector<int>(n, 0));
+
+	int count = 0;
+	for (int gap = 0; gap < n; gap++)
+	{
+		for (int i = 0, j = gap; j < n; i++, j++)
+		{
+			if (gap == 0)
+				dp[i][j] = 1;
+			else if (gap == 1 && str[i] == str[j])
+				dp[i][j] = 2;
+			else if (str[i] == str[j] && dp[i + 1][j - 1] != 0)
+				dp[i][j] = gap + 1;
+
+			count += dp[i][j] != 0 ? 1 : 0;
+		}
+	}
+	return count;
+}
+
+//======================================================================================
+//Leetcode 516. Longest Palindromic Subsequence=========================================
+int longestPlaindromeSubseq_Rec(string &str, int si, int ei, vector<vector<int>> &dp)
+{
+	if (si > ei)
+		return 0;
+	if (si == ei)
+		return dp[si][ei] = 1;
+	if (dp[si][ei] != 0)
+		return dp[si][ei];
+
+	int len = 0;
+	if (str[si] == str[ei])
+		len = longestPlaindromeSubseq_Rec(str, si + 1, ei - 1, dp) + 2;
+	else
+		len = max(longestPlaindromeSubseq_Rec(str, si + 1, ei, dp), longestPlaindromeSubseq_Rec(str, si, ei - 1, dp));
+
+	return dp[si][ei] = len;
+}
+
+int longestPlaindromeSubseq_DP(string &str, int si, int ei, vector<vector<int>> &dp, vector<vector<bool>> &isPalindrome)
+{
+	for (int gap = 0; gap < str.size(); gap++)
+	{
+		for (si = 0, ei = gap; ei < str.size(); si++, ei++)
+		{
+			if (isPalindrome[si][ei])
+			{
+				dp[si][ei] = ei - si + 1;
+				continue;
+			}
+
+			int len = 0;
+			if (str[si] == str[ei])
+				len = dp[si + 1][ei - 1];
+			else
+				len = max(dp[si + 1][ei], dp[si][ei - 1]);
+
+			dp[si][ei] = len;
+		}
+	}
+	return dp[0][str.size() - 1];
+}
+
+int longestPalindromeSubseq(string &s)
+{
+	int n = s.size();
+
+	vector<vector<int>> dp(n, vector<int>(n, 0));
+	vector<vector<bool>> isPalindrome = isPlaindromeSubstring(s);
+	// return longestPlaindromeSubseq_Rec(s, 0, n - 1, dp);
+	return longestPlaindromeSubseq_DP(s, 0, n - 1, dp, isPalindrome);
+}
+
+//======================================================================================
+//Leetcode 115 : distinct-subsequences.=================================================
+int distinct_subsequences(string S, string T, int n, int m, vector<vector<int>> &dp)
+{
+	if (m == 0)
+		return dp[n][m] = 1;
+	if (m > n)
+		return dp[n][m] = 0;
+
+	if (dp[n][m] != -1)
+		return dp[n][m];
+
+	if (S[n - 1] == T[m - 1])
+		return dp[n][m] = distinct_subsequences(S, T, n - 1, m - 1, dp) + distinct_subsequences(S, T, n - 1, m, dp);
+
+	return dp[n][m] = distinct_subsequences(S, T, n - 1, m, dp);
+}
+
+int distinct_subsequences_02(string S, string T, int i, int j, vector<vector<int>> &dp)
+{
+	if (T.length() - j == 0)
+		return dp[i][j] = 1;
+	if (S.length() - i > T.length() - j)
+		return dp[i][j] = 0;
+
+	if (dp[i][j] != -1)
+		return dp[i][j];
+
+	if (S[i] == T[j])
+		return dp[i][j] = distinct_subsequences_02(S, T, i + 1, j + 1, dp) + distinct_subsequences_02(S, T, i + 1, j, dp);
+
+	return dp[i][j] = distinct_subsequences_02(S, T, i + 1, j, dp);
+}
+
+int distinct_subsequences_DP(string S, string T, int n, int m, vector<vector<int>> &dp)
+{
+	int N = n, M = m;
+	for (n = 0; n <= N; n++)
+	{
+		for (m = 0; m <= M; m++)
+		{
+			if (m == 0)
+			{
+				dp[n][m] = 1;
+				continue;
+			}
+			if (m > n)
+			{
+				dp[n][m] = 0;
+				continue;
+			}
+			if (S[n - 1] == T[m - 1])
+				dp[n][m] = dp[n - 1][m - 1] + dp[n - 1][m];
+			else
+				dp[n][m] = dp[n - 1][m];
+		}
+	}
+
+	return dp[N][M];
+}
+
+int numDistinct(string s, string t)
+{
+	int n = s.length();
+	int m = t.length();
+	vector<vector<int>> dp(n + 1, vector<int>(m + 1, -1));
+	// cout << distinct_subsequences(s, t, n, m, dp) << endl;
+	cout << distinct_subsequences_DP(s, t, n, m, dp) << endl;
+
+	display2D(dp);
+}
+
+//===================================================================================
+//Geeks: https://practice.geeksforgeeks.org/problems/count-palindromic-subsequences/1
+int countPS(string &s, int i, int j, vector<vector<int>> &dp)
+{
+	if (i > j)
+		return 0;
+	if (i == j)
+		return dp[i][j] = 1;
+	if (dp[i][j] != 0)
+		return dp[i][j];
+
+	int middleString = countPS(s, i + 1, j - 1, dp);
+	int excludingLast = countPS(s, i, j - 1, dp);
+	int excludingFirst = countPS(s, i + 1, j, dp);
+
+	int ans = excludingFirst + excludingLast;
+	return dp[i][j] = (s[i] == s[j]) ? ans + 1 : ans - middleString;
+}
+
+int countPS_DP(string &s, int i, int j, vector<vector<int>> &dp)
+{
+
+	int n = s.length();
+	for (int gap = 0; gap < n; gap++)
+	{
+		for (int i = 0, j = gap; j < n; j++, i++)
+		{
+			if (i == j)
+			{
+				dp[i][j] = 1;
+				continue;
+			}
+
+			int middleString = dp[i + 1][j - 1];
+			int excludingLast = dp[i][j - 1];
+			int excludingFirst = dp[i + 1][j];
+
+			int ans = excludingFirst + excludingLast;
+			dp[i][j] = (s[i] == s[j]) ? ans + 1 : ans - middleString;
+		}
+	}
+	return dp[0][n - 1];
+}
+
+//==================================================================================
 
 void solve()
 {
