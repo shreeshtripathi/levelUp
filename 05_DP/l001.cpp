@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <list>
-
+#include <climits>
 using namespace std;
 
 //PRINT==================================================================
@@ -671,6 +671,7 @@ string longestPlaindromeSubstring(string str)
 
 //===================================================================================
 //Leetcode 647.Palindromic Substrings================================================
+
 int countAllPlaindromicSubstring(string str)
 {
 	int n = str.length();
@@ -809,7 +810,7 @@ int distinct_subsequences_DP(string S, string T, int n, int m, vector<vector<int
 	return dp[N][M];
 }
 
-int numDistinct(string s, string t)
+void numDistinct(string s, string t)
 {
 	int n = s.length();
 	int m = t.length();
@@ -865,12 +866,938 @@ int countPS_DP(string &s, int i, int j, vector<vector<int>> &dp)
 }
 
 //==================================================================================
+// Leetcode 1143. Longest Common Subsequence========================================
+int longestCommonSubsequence_Rec(string &text1, string &text2, int i, int j, vector<vector<int>> &dp)
+{
+	if (i == text1.size() || j == text2.size())
+		return 0;
+
+	if (dp[i][j] != 0)
+		return dp[i][j];
+
+	int count = 0;
+
+	if (text1[i] == text2[j])
+		count = longestCommonSubsequence_Rec(text1, text2, i + 1, j + 1, dp) + 1;
+	else
+		count = max(longestCommonSubsequence_Rec(text1, text2, i + 1, j, dp),
+					longestCommonSubsequence_Rec(text1, text2, i, j + 1, dp));
+
+	return dp[i][j] = count;
+}
+
+int longestCommonSubsequence_DP(string &text1, string &text2, int i, int j, vector<vector<int>> &dp)
+{
+	// if want to print string then make dp of string
+	for (i = text1.size() - 1; i >= 0; i--)
+	{
+		for (j = text2.size() - 1; j >= 0; j--)
+		{
+			int count = 0;
+
+			if (text1[i] == text2[j])
+				count = dp[i + 1][j + 1] + 1;
+			else
+				count = max(dp[i + 1][j], dp[i][j + 1]);
+
+			dp[i][j] = count;
+		}
+	}
+	return dp[0][0];
+}
+
+int longestCommonSubsequence(string text1, string text2)
+{
+	vector<vector<int>> dp(text1.size() + 1, vector<int>(text2.size() + 1, 0));
+	// return longestCommonSubsequence_Rec(text1, text2, 0, 0, dp);
+	return longestCommonSubsequence_DP(text1, text2, 0, 0, dp);
+}
+
+//==================================================================================
+// Link : https://practice.geeksforgeeks.org/problems/longest-common-substring/0
+// Longest Common Substring=========================================================
+int max_ = 0;
+int longestCommonSubstring_Rec(string &str1, string &str2, int i, int j, vector<vector<int>> &dp)
+{
+	if (i == str1.size() || j == str2.size())
+		return dp[i][j] = 0;
+
+	if (dp[i][j] != 0)
+		return dp[i][j];
+
+	int a = longestCommonSubstring_Rec(str1, str2, i, j + 1, dp);
+	int b = longestCommonSubstring_Rec(str1, str2, i + 1, j, dp);
+
+	if (str1[i] == str2[j])
+	{
+		int val = longestCommonSubstring_Rec(str1, str2, i + 1, j + 1, dp);
+		max_ = max(max_, val);
+		return dp[i][j] = a;
+	}
+	return 0;
+}
+
+int longestCommonSubstring_DP(string &str1, string &str2, int i, int j, vector<vector<int>> &dp)
+{
+	int ans = 0;
+	for (i = str1.size() - 1; i >= 0; i--)
+	{
+		for (j = str2.size() - 1; j >= 0; j--)
+		{
+			int a = dp[i][j + 1];
+			int b = dp[i + 1][j];
+
+			if (str1[i] == str2[j])
+			{
+				int val = dp[i + 1][j + 1];
+				ans = max(ans, val);
+				dp[i][j] = ans;
+			}
+		}
+	}
+	return ans;
+}
+
+//====================================================================================
+// Leetcode 1035. Uncrossed Lines=====================================================
+int maxUncrossedLines(vector<int> &A, vector<int> &B)
+{
+	int n = A.size(), m = B.size();
+	vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+
+	for (int i = n - 1; i >= 0; i--)
+	{
+		for (int j = m - 1; j >= 0; j--)
+		{
+			if (A[i] == B[j])
+				dp[i][j] = dp[i + 1][j + 1] + 1;
+			else
+				dp[i][j] = max(dp[i][j + 1], dp[i + 1][j]);
+		}
+	}
+	return dp[0][0];
+}
+
+//====================================================================================
+// Leetcode 1458. Max Dot Product of Two Subsequences=================================
+int maxDotProduct(vector<int> &nums1, vector<int> &nums2)
+{
+	int n = nums1.size(), m = nums2.size();
+	vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+	for (int i = n; i >= 0; i--)
+	{
+		for (int j = m; j >= 0; j--)
+		{
+			if (i == n || m == j)
+			{
+				dp[i][j] = -1e8;
+				continue;
+			}
+
+			int val = nums1[i] * nums2[j];
+			int a = dp[i + 1][j + 1] + val;
+			int b = dp[i + 1][j];
+			int c = dp[i][j + 1];
+
+			dp[i][j] = max(max(a, b), max(c, val));
+		}
+	}
+
+	return dp[0][0];
+}
+
+//===============================================================================
+//Coin_Change/Target_Type.=======================================================
+int coinChangePermutation(vector<int> &arr, int tar, vector<int> &dp)
+{
+	if (tar == 0)
+		return dp[tar] = 1;
+	if (dp[tar] != 0)
+		return dp[tar];
+
+	int count = 0;
+	for (int ele : arr)
+		if (tar - ele >= 0)
+			count += coinChangePermutation(arr, tar - ele, dp);
+
+	return dp[tar] = count;
+}
+
+int coinChangePermutation_DP(vector<int> &arr, int tar, vector<int> &dp)
+{
+	int Tar = tar;
+	dp[0] = 1;
+	for (int tar = 0; tar <= Tar; tar++)
+	{
+		int count = 0;
+		for (int ele : arr)
+			if (tar - ele >= 0)
+				count += dp[tar - ele];
+
+		dp[tar] = count;
+	}
+	return dp[Tar];
+}
+
+int coinChangeCombination_DP(vector<int> &arr, int tar, vector<int> &dp)
+{
+	int Tar = tar;
+	dp[0] = 1;
+	for (int ele : arr)
+		for (int tar = ele; tar <= Tar; tar++)
+			dp[tar] += dp[tar - ele];
+
+	return dp[Tar];
+}
+
+void coinChange_1()
+{
+	vector<int> arr{2, 3, 5, 7};
+	int tar = 10;
+	vector<int> dp(tar + 1, 0);
+	cout << coinChangePermutation(arr, tar, dp) << endl;
+
+	display(dp);
+}
+
+//===========================================================================================
+// Link : https://www.geeksforgeeks.org/find-number-of-solutions-of-a-linear-equation-of-n-variables/
+//Solution of linear Equation================================================================
+int LinearEquation_DP(vector<int> &coeff, int rhs)
+{
+	vector<int> dp(rhs + 1, 0);
+	dp[0] = 1;
+	for (int ele : coeff)
+		for (int tar = ele; tar <= rhs; tar++)
+			dp[tar] += dp[tar - ele];
+
+	// return not correct
+	return 0;
+}
+
+//===================================================================================
+// Leetcode 322. Coin Change=========================================================
+
+int coinChange_01(vector<int> &coins, int tar, vector<int> &dp)
+{
+	if (tar == 0)
+		return 0;
+
+	if (dp[tar] != 0)
+		return dp[tar];
+
+	int minCoins = 1e8;
+	for (int coin : coins)
+		if (tar - coin >= 0)
+		{
+			int rminCoins = coinChange_01(coins, tar - coin, dp);
+			if (rminCoins != 1e8 && rminCoins + 1 < minCoins)
+				minCoins = rminCoins + 1;
+		}
+
+	return dp[tar] = minCoins;
+}
+
+int coinChange(vector<int> &coins, int tar)
+{
+	vector<int> dp(tar + 1, 0);
+	int res = coinChange_01(coins, tar, dp);
+	return res != 1e8 ? res : -1;
+}
+
+// Target Sum
+//===================================================================================
+// Coin change subsequence DP========================================================
+int targetSum(vector<int> &coins, int idx, int tar, vector<vector<int>> &dp)
+{
+	if (tar == 0 || idx == coins.size())
+	{
+		if (tar == 0)
+			return dp[idx][tar] = 1;
+		return dp[idx][tar] = 0;
+	}
+
+	if (dp[idx][tar] != 0)
+		return dp[idx][tar];
+
+	int count = 0;
+	if (tar - coins[idx] >= 0)
+		count += targetSum(coins, idx + 1, tar - coins[idx], dp);
+
+	count += targetSum(coins, idx + 1, tar, dp);
+	return dp[idx][tar] = count;
+}
+
+// travel from ehind in the vector of coins
+int targetSum_02(vector<int> &coins, int idx, int tar, vector<vector<int>> &dp)
+{
+	if (tar == 0 || idx == 0)
+	{
+		if (tar == 0)
+			return dp[idx][tar] = 1;
+		return dp[idx][tar] = 0;
+	}
+
+	if (dp[idx][tar] != 0)
+		return dp[idx][tar];
+
+	int count = 0;
+	if (tar - coins[idx - 1] >= 0)
+		count += targetSum_02(coins, idx - 1, tar - coins[idx - 1], dp);
+
+	count += targetSum_02(coins, idx - 1, tar, dp);
+	return dp[idx][tar] = count;
+}
+
+// printing the path of coins - helper function after DP filled
+int printPathOfTargetSum(vector<int> &coins, int idx, int tar, string ans, vector<vector<bool>> &dp)
+{
+	if (tar == 0 || idx == 0)
+	{
+		if (tar == 0)
+		{
+			cout << ans << endl;
+			return 1;
+		}
+		return 0;
+	}
+
+	int count = 0;
+	if (tar - coins[idx - 1] >= 0 && dp[idx - 1][tar - coins[idx - 1]])
+		count += printPathOfTargetSum(coins, idx - 1, tar - coins[idx - 1], ans + to_string(coins[idx - 1]) + " ", dp);
+
+	if (dp[idx - 1][tar])
+		count += printPathOfTargetSum(coins, idx - 1, tar, ans, dp);
+
+	return count;
+}
+
+void targetSum_02DP(vector<int> &coins, int tar)
+{
+	vector<vector<bool>> dp(coins.size() + 1, vector<bool>(tar + 1, false));
+	int Tar = tar;
+	for (int idx = 0; idx <= coins.size(); idx++)
+	{
+		for (tar = 0; tar <= Tar; tar++)
+		{
+
+			if (tar == 0 || idx == 0)
+			{
+				if (tar == 0)
+					dp[idx][tar] = true;
+				continue;
+			}
+
+			if (tar - coins[idx - 1] >= 0)
+				dp[idx][tar] = dp[idx - 1][tar - coins[idx - 1]];
+
+			dp[idx][tar] = dp[idx][tar] || dp[idx - 1][tar];
+		}
+	}
+
+	for (vector<bool> &ar : dp)
+	{
+		for (bool ele : ar)
+		{
+			cout << ele << " ";
+		}
+		cout << endl;
+	}
+
+	cout << printPathOfTargetSum(coins, coins.size(), Tar, "", dp) << endl;
+}
+
+//===================================================================================
+// Link: https://practice.geeksforgeeks.org/problems/0-1-knapsack-problem/0
+// 0-1 Knapsack======================================================================
+int knapsack01(vector<int> &w, vector<int> &p, int weight, int n, vector<vector<int>> &dp)
+{
+	if (weight == 0 || n == 0)
+	{
+		return 0;
+	}
+
+	if (dp[n][weight] != 0)
+		return dp[n][weight];
+
+	int maxProfit = -1e8;
+	if (weight - w[n - 1] >= 0)
+		maxProfit = max(maxProfit, knapsack01(w, p, weight - w[n - 1], n - 1, dp) + p[n - 1]); // dp[n-1][weight - w[n - 1]]+p[n-1]
+	maxProfit = max(maxProfit, knapsack01(w, p, weight, n - 1, dp));						   // dp[n-1][weight]
+
+	return dp[n][weight] = maxProfit;
+}
+
+//===================================================================================
+// Link: https://practice.geeksforgeeks.org/problems/knapsack-with-duplicate-items/0
+// Unbounded Knapsack================================================================
+int unbpounded(vector<int> &w, vector<int> &p, int weight)
+{
+	vector<int> dp(w.size() + 1, -1e8);
+	dp[0] = 0;
+	for (int i = 0; i < w.size(); i++)
+		for (int tar = w[i]; tar <= weight; tar++)
+			dp[tar] = max(dp[tar], dp[tar - w[i]] + p[i]);
+
+	return dp[w.size()];
+}
+
+void knapsack()
+{
+	vector<int> p = {100, 280, 120};
+	vector<int> w = {10, 40, 20};
+	int weight = 60;
+	int n = w.size();
+	vector<vector<int>> dp(n + 1, vector<int>(weight + 1, 0));
+
+	cout << knapsack01(w, p, weight, n, dp) << endl;
+}
+
+//===================================================================================
+// Leetcode 416. Partition Equal Subset Sum==========================================
+bool canPartition_(vector<int> &nums, int n, int sum, vector<vector<int>> &dp)
+{
+	if (sum == 0 || n == 0)
+	{
+		if (sum == 0)
+			return dp[n][sum] = 1;
+		return dp[n][sum] = 0;
+	}
+
+	if (dp[n][sum] != -1)
+		return dp[n][sum];
+
+	bool res = false;
+	if (sum - nums[n - 1] >= 0)
+		res = res || canPartition_(nums, n - 1, sum - nums[n - 1], dp) == 1;
+	res = res || canPartition_(nums, n - 1, sum, dp) == 1;
+
+	return dp[n][sum] = res ? 1 : 0;
+}
+
+bool canPartition(vector<int> &nums)
+{
+	int sum = 0;
+	for (int ele : nums)
+		sum += ele;
+	if (sum % 2 != 0)
+		return false;
+
+	sum /= 2;
+	vector<vector<int>> dp(nums.size() + 1, vector<int>(sum + 1, -1));
+
+	return canPartition_(nums, nums.size(), sum, dp);
+}
+
+//===================================================================================
+// Leetcode 494. Target Sum==========================================================
+
+//===================================================================================
+// Leetcode 72. Edit Distance=================================================================
+int minDistance(string &word1, string &word2, int n, int m, vector<vector<int>> &dp)
+{
+	if (n == 0 || m == 0)
+	{
+		return dp[n][m] = (n == 0 ? m : n);
+	}
+
+	if (dp[n][m] != 0)
+		return dp[n][m];
+	if (word1[n - 1] == word2[m - 1])
+		return dp[n][m] = minDistance(word1, word2, n - 1, m - 1, dp);
+
+	int insert_ = minDistance(word1, word2, n, m - 1, dp);
+	int replace_ = minDistance(word1, word2, n - 1, m - 1, dp);
+	int delete_ = minDistance(word1, word2, n - 1, m, dp);
+
+	return dp[n][m] = min(min(insert_, replace_), delete_) + 1;
+}
+
+int minDistance(string str1, string str2)
+{
+	vector<vector<int>> dp(str1.size() + 1, vector<int>(str2.size() + 1));
+	int n = str1.size();
+	int m = str2.size();
+
+	return minDistance(str1, str2, n, m, dp);
+}
+
+//===================================================================================
+// LIS type question - left to right maximum
+// Leetcode 300. Longest Increasing Subsequence======================================
+int lisMax = 1;
+int LIS_res(vector<int> &arr, vector<int> &dp, int n)
+{
+	if (n == 0)
+		return dp[n] = 1;
+
+	if (dp[n] != 0)
+		return dp[n];
+
+	int count = 0;
+	for (int indx = n - 1; indx >= 0; indx--)
+		if (arr[indx] < arr[n])
+			count = max(count, LIS_res(arr, dp, indx));
+
+	lisMax = max(lisMax, count + 1);
+	return dp[n] = count + 1;
+}
+
+int LIS_leftTotRight_DP(vector<int> &arr, vector<int> &dp)
+{
+	int omax = 1;
+	for (int n = 0; n < arr.size(); n++)
+	{
+		if (n == 0)
+		{
+			dp[n] = 1;
+			continue;
+		}
+
+		int count = 0;
+		for (int indx = n - 1; indx >= 0; indx--)
+			if (arr[indx] < arr[n])
+				count = max(count, dp[indx]);
+
+		omax = max(omax, count + 1);
+		dp[n] = count + 1;
+	}
+	return omax;
+}
+
+int lengthOfLIS(vector<int> &arr)
+{
+	if (arr.size() == 0)
+		return 0;
+
+	vector<int> dp(arr.size(), 0);
+	for (int i = arr.size() - 1; i >= 0; i--)
+		LIS_res(arr, dp, i);
+	return lisMax;
+}
+
+//===================================================================================
+// its is similar to LDS
+int LIS_rightToLeft(vector<int> &arr, vector<int> &dp)
+{
+	int omax = 1;
+	for (int n = arr.size() - 1; n >= 0; n--)
+	{
+		if (n == arr.size() - 1)
+		{
+			dp[n] = 1;
+			continue;
+		}
+
+		int count = 0;
+		for (int indx = n + 1; indx < arr.size(); indx++)
+			if (arr[indx] < arr[n])
+				count = max(count, dp[indx]);
+
+		omax = max(omax, count + 1);
+		dp[n] = count + 1;
+	}
+	display(dp);
+	return omax;
+}
+
+//===================================================================================
+// bitonic
+int lbs(vector<int> &arr)
+{
+	vector<int> lisDP(arr.size(), 0);
+	vector<int> ldsDP(arr.size(), 0);
+	LIS_leftTotRight_DP(arr, lisDP);
+	LIS_rightToLeft(arr, ldsDP);
+
+	int ans = 0;
+	for (int i = 0; i < arr.size(); i++)
+		ans = max(ans, lisDP[i] + ldsDP[i] - 1);
+
+	return ans;
+}
+
+//===================================================================================
+// inverse bitonic
+
+//===================================================================================
+// maximum increasingg sum subsequence
+// Link: https://practice.geeksforgeeks.org/problems/maximum-sum-increasing-subsequence/0
+int maximumSumIncreasingSubseq(vector<int> &arr)
+{
+	// for subseq we not use Rec because it requires 2D matrix,
+	// with DP we can do it in O(n) space.
+	int n = arr.size();
+	vector<int> dp(n, 0);
+
+	int omax = 0; // overall max in dp
+
+	for (int i = 0; i < n; i++)
+	{
+		int count = 0;
+		for (int j = i - 1; j >= 0; j--)
+		{
+			if (arr[j] < arr[i])
+				count = max(count, dp[j]);
+		}
+		omax = max(omax, count + arr[i]);
+		dp[i] = count + arr[i];
+	}
+	return omax;
+}
+
+//===================================================================================
+// maximum bitonic sum subsequence
+// Link: https://practice.geeksforgeeks.org/problems/maximum-sum-bitonic-subsequence/0
+
+// helper function 1
+void lis_sum_hlpr(vector<int> &arr, vector<int> &dp)
+{
+	for (int i = 0; i < arr.size(); i++)
+	{
+		int count = 0;
+		for (int j = i - 1; j >= 0; j--)
+			if (arr[j] < arr[i])
+				count = max(count, dp[j]);
+
+		dp[i] = count + arr[i];
+	}
+	display(dp);
+}
+
+// helper function 2
+void lds_sum_hlpr(vector<int> &arr, vector<int> &dp)
+{
+	for (int i = arr.size() - 1; i >= 0; i--)
+	{
+		int count = 0;
+		for (int j = i + 1; j < arr.size(); j++)
+			if (arr[j] < arr[i])
+				count = max(count, dp[j]);
+		dp[i] = count + arr[i];
+	}
+	display(dp);
+}
+
+int maxSumBitonicSubseq(vector<int> &arr)
+{
+	int n = arr.size();
+	// find maximum sum increasing subseq
+	vector<int> lis_sum(n, 0);
+	lis_sum_hlpr(arr, lis_sum);
+
+	// find maximum sum Decreasing subseq(if consider from left to right)
+	// OR, maximum sum increasing subseq(if consider from right to left)
+	vector<int> lds_sum(n, 0);
+	lds_sum_hlpr(arr, lds_sum);
+
+	// find max bitonic sum subseq
+	int omax = 0;
+	for (int i = 0; i < n; i++)
+		if (omax < lis_sum[i] + lds_sum[i] - arr[i])
+			omax = lis_sum[i] + lds_sum[i] - arr[i];
+
+	return omax;
+}
+
+//===================================================================================
+// Leetcode 673. Number of Longest Increasing Subsequence
+
+//===================================================================================
+// Leetcode 354. Russian Doll Envelopes
+
+//===================================================================================
+// Leetcode 1027
+
+//===================================================================================
+// Leetcode 1235
+
+//===================================================================================
+
+void LIS_type()
+{
+	vector<int> arr{47, 58, 116, 114};
+	// vector<int> dp(arr.size(), 0);
+	// cout << LIS_rightToLeft(arr, dp) << endl;
+
+	cout << maxSumBitonicSubseq(arr) << endl;
+}
+
+//===================================================================================
+// Cut Type
+//===================================================================================
+// Matrix chain multiplication
+// Link: https://practice.geeksforgeeks.org/problems/matrix-chain-multiplication/0
+int mcm_res(vector<int> &arr, int si, int ei, vector<vector<int>> &dp)
+{
+	if (si + 1 == ei)
+		return dp[si][ei] = 0;
+
+	if (dp[si][ei] != -1)
+		return dp[si][ei];
+
+	int ans = 1e8;
+	for (int cut = si + 1; cut < ei; cut++)
+	{
+		int leftCost = mcm_res(arr, si, cut, dp);
+		int rightCost = mcm_res(arr, cut, ei, dp);
+
+		int myCost = leftCost + arr[si] * arr[cut] * arr[ei] + rightCost;
+		if (myCost < ans)
+			ans = myCost;
+	}
+	return dp[si][ei] = ans;
+}
+
+int mcm_DP(vector<int> &arr, int si, int ei, vector<vector<int>> &dp)
+{
+	for (int gap = 1; gap < arr.size(); gap++)
+	{
+		for (si = 0, ei = gap; ei < arr.size(); si++, ei++)
+		{
+			if (si + 1 == ei)
+			{
+				dp[si][ei] = 0;
+				continue;
+			}
+
+			int ans = 1e8; // during submission always use INT_MAX;
+			for (int cut = si + 1; cut < ei; cut++)
+			{
+				int leftCost = dp[si][cut];	 // mcm_res(arr, si, cut, dp);
+				int rightCost = dp[cut][ei]; // mcm_res(arr, cut, ei, dp);
+
+				int myCost = leftCost + arr[si] * arr[cut] * arr[ei] + rightCost;
+				if (myCost < ans)
+					ans = myCost;
+			}
+			dp[si][ei] = ans;
+		}
+	}
+	return dp[0][dp.size() - 1];
+}
+
+// Brackets in matric chain multiplication=====================================
+// Link: https://practice.geeksforgeeks.org/problems/brackets-in-matrix-chain-multiplication/0/
+void bracket_mcm_DP(vector<int> &arr)
+{
+	int n = arr.size(), si = 0, ei = 0;
+	vector<vector<int>> dp(n, vector<int>(n, -1));
+	vector<vector<string>> dp_str(n, vector<string>(n, ""));
+
+	for (int gap = 1; gap < arr.size(); gap++)
+	{
+		for (si = 0, ei = gap; ei < arr.size(); si++, ei++)
+		{
+			if (si + 1 == ei)
+			{
+				dp[si][ei] = 0;
+				dp_str[si][ei] = (char)('A' + si);
+				continue;
+			}
+
+			int ans = INT_MAX; // during submission always use INT_MAX;
+			string str = "";
+			for (int cut = si + 1; cut < ei; cut++)
+			{
+				int leftCost = dp[si][cut];	 // mcm_res(arr, si, cut, dp);
+				int rightCost = dp[cut][ei]; // mcm_res(arr, cut, ei, dp);
+
+				int myCost = leftCost + arr[si] * arr[cut] * arr[ei] + rightCost;
+				if (myCost < ans)
+				{
+					ans = myCost;
+					str = "(" + dp_str[si][cut] + dp_str[cut][ei] + ")";
+				}
+			}
+			dp[si][ei] = ans;
+			dp_str[si][ei] = str;
+		}
+	}
+	cout << dp_str[0][dp.size() - 1];
+}
+
+void mcm()
+{
+	vector<int> arr{40, 20, 30, 10, 30};
+	int n = arr.size();
+	vector<vector<int>> dp(n, vector<int>(n, -1));
+	// cout << mcm_res(arr, 0, n - 1, dp) << endl;
+	// cout << mcm_DP(arr, 0, n - 1, dp) << endl;
+	// bracket_mcm_DP(arr);
+
+	// display2D(dp);
+}
+
+//===================================================================================
+// Optimal BST
+// Note : if array of tree is unsorted then sort tree and freq simultaneously
+int costOfSearching(vector<int> &arr, int si, int ei)
+{
+	int sum = 0;
+	for (int i = si; i <= ei; i++)
+		sum += arr[i];
+	return sum;
+}
+
+int optimalBST_rec(vector<int> &freq, int si, int ei, vector<vector<int>> &dp)
+{
+	if (dp[si][ei] != 0)
+		return dp[si][ei];
+
+	int ans = INT_MAX;
+	for (int cut = si; cut <= ei; cut++)
+	{
+		int leftTreeCost = cut == si ? 0 : optimalBST_rec(freq, si, cut - 1, dp);
+		int rightTreeCost = cut == ei ? 0 : optimalBST_rec(freq, cut + 1, ei, dp);
+
+		int myCost = leftTreeCost + costOfSearching(freq, si, ei) + rightTreeCost;
+
+		if (ans > myCost)
+			ans = myCost;
+	}
+
+	return dp[si][ei] = ans;
+}
+
+int optimalBST_DP(vector<int> &freq, int si, int ei, vector<vector<int>> &dp)
+{
+	// make an Optimal previous sum
+	vector<int> psum(freq.size() + 1, 0);
+	for (int i = 1; i < psum.size(); i++)
+		psum[i] = psum[i - 1] + freq[i - 1];
+
+	// DP
+	for (int gap = 1; gap < freq.size(); gap++)
+	{
+		for (si = 0, ei = gap; ei < freq.size(); si++, ei++)
+		{
+			int ans = INT_MAX;
+			for (int cut = si; cut <= ei; cut++)
+			{
+				int leftTreeCost = cut == si ? 0 : dp[si][cut - 1];	 // optimalBST_rec(freq, si, cut - 1, dp);
+				int rightTreeCost = cut == ei ? 0 : dp[cut + 1][ei]; // optimalBST_rec(freq, cut + 1, ei, dp);
+
+				int myCost = leftTreeCost + psum[ei + 1] - psum[si] + rightTreeCost;
+
+				if (ans > myCost)
+					ans = myCost;
+			}
+			dp[si][ei] = ans;
+		}
+	}
+	return dp[0][freq.size() - 1];
+}
+
+void optimalBST()
+{
+	vector<int> keys{10, 12, 20};
+	vector<int> freq{34, 8, 50};
+
+	int n = freq.size();
+	vector<vector<int>> dp(n, vector<int>(n, 0));
+
+	// cout << optimalBST_rec(freq, 0, n - 1, dp) << endl;
+	cout << optimalBST_DP(freq, 0, n - 1, dp) << endl;
+
+	display2D(dp);
+}
+
+//===================================================================================
+// Leetcode 312. Burst Balloons
+int maxCoins(vector<int> &nums)
+{
+	return 0;
+}
+
+//===================================================================================
+// Leetcode 91. Decode Ways
+int numDecodings_rec(string &s, int vidx, vector<int> &dp)
+{
+	if (vidx == s.size())
+		return dp[vidx] = 1;
+
+	if (dp[vidx] != -1)
+		return dp[vidx];
+
+	char ch = s[vidx];
+	if (ch == '0')
+		return dp[vidx] = 0;
+
+	int count = 0;
+	count += numDecodings_rec(s, vidx + 1, dp);
+	if (vidx < s.size() - 1)
+	{
+		int num = (ch - '0') * 10 + (s[vidx + 1] - '0');
+		if (num <= 26)
+			count += numDecodings_rec(s, vidx + 2, dp);
+	}
+	return dp[vidx] = count;
+}
+
+int numDecodings_btr(string &s)
+{
+	int a = 0;
+	int b = 1;
+
+	int ans = 0;
+
+	for (int i = s.size() - 1; i >= 0; i--)
+	{
+		char ch = s[i];
+		ans = 0;
+		if (ch != '0')
+		{
+			ans = b;
+			if (i < s.size() - 1)
+			{
+				int num = (ch - '0') * 10 + (s[i + 1] - '0');
+				if (num <= 25)
+					ans += a;
+			}
+		}
+
+		a = b;
+		b = ans;
+	}
+
+	return ans;
+}
+
+int numDecodings(string s)
+{
+	vector<int> dp(s.size() + 1, -1);
+	int ans = numDecodings_rec(s, 0, dp);
+
+	cout << ans << endl;
+	display(dp);
+
+	return ans;
+}
+
+//===================================================================================
+// Leetcode 639. Decode Ways II
+
+void questionSet()
+{
+	string s = "1423101112";
+	numDecodings(s);
+}
+
+void cutType()
+{
+	// mcm();
+	// optimalBST();
+	questionSet();
+}
 
 void solve()
 {
 	// set1();
 	// pathSet();
-	set2();
+	// set2();
+	// LIS_type();
+	cutType();
 }
 
 int main(int argc, char **argv)
