@@ -1,5 +1,9 @@
 #include <iostream>
+#include <list>
+#include <queue>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
@@ -97,14 +101,14 @@ int islandPerimeter(vector<vector<int>>& grid) {
 void surrounded_dfs(int x, int y, vector<vector<char>>& board, int dir[4][2]) {
     board[x][y] = '#';
 
-    for(int d = 0; d < 4; d++) {
+    for (int d = 0; d < 4; d++) {
         int r = x + dir[d][0];
         int c = y + dir[d][1];
 
-        if(r >= 0 && r < board.size() && c >= 0 && c < board[0].size() && board[r][c] == 'O') {
+        if (r >= 0 && r < board.size() && c >= 0 && c < board[0].size() && board[r][c] == 'O') {
             surrounded_dfs(r, c, board, dir);
         }
-    } 
+    }
 }
 
 void solve(vector<vector<char>>& board) {
@@ -138,6 +142,198 @@ void solve(vector<vector<char>>& board) {
 // Hackerrank : Journey to the moon
 // Link : https://www.hackerrank.com/challenges/journey-to-the-moon/problem
 // Solution is present in the same folder of this code "astro.cpp"
+
+//==============================================================
+// 28th Jully Code
+//==============================================================
+
+// Leetcode 994. Rotting Oranges
+int orangesRotting(vector<vector<int>>& grid) {
+    if (grid.size() == 0 || grid[0].size() == 0) return 0;
+
+    int dir[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+    int n = grid.size();
+    int m = grid[0].size();
+
+    list<pair<int, int>> queue;
+
+    int freshOranges = 0;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (grid[i][j] == 1)
+                freshOranges++;
+            else if (grid[i][j] == 2)
+                queue.push_back({i, j});
+        }
+    }
+
+    int time = 0;
+    if (freshOranges == 0 && queue.size() >= 0) return time;
+    while (queue.size() != 0) {
+        int size = queue.size();
+        while (size--) {
+            pair<int, int> rem = queue.front();
+            queue.pop_front();
+
+            int x = rem.first;
+            int y = rem.second;
+
+            for (int d = 0; d < 4; d++) {
+                int r = x + dir[d][0];
+                int c = y + dir[d][1];
+
+                if (r >= 0 && r < n && c >= 0 && c < m && grid[r][c] == 1) {
+                    grid[r][c] = 2;
+                    queue.push_back({r, c});
+                    freshOranges--;
+                }
+            }
+        }
+        time++;
+        if (freshOranges == 0) return time;
+    }
+    return -1;
+}
+
+// Leetcode 1091. Shortest Path in Binary Matrix
+int shortestPathBinaryMatrix(vector<vector<int>>& grid) {
+    if (grid.size() == 0 || grid[0].size() == 0) return 0;
+
+    int dir[8][2] = {{0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
+
+    int n = grid.size();
+    int m = grid[0].size();
+
+    if (grid[0][0] == 1 || grid[n - 1][m - 1] == 1) return -1;
+
+    list<pair<int, int>> queue;
+
+    int level = 0;
+
+    queue.push_back({0, 0});
+    grid[0][0] = 1;
+
+    while (queue.size() != 0) {
+        int size = queue.size();
+        while (size--) {
+            pair<int, int> rem = queue.front();
+            queue.pop_front();
+
+            int x = rem.first;
+            int y = rem.second;
+
+            if (x == n - 1 && y == m - 1) return level + 1;
+
+            for (int d = 0; d < 8; d++) {
+                int r = x + dir[d][0];
+                int c = y + dir[d][1];
+
+                if (r >= 0 && r < n && c >= 0 && c < m && grid[r][c] == 0) {
+                    grid[r][c] = 1;
+                    queue.push_back({r, c});
+                }
+            }
+        }
+        level++;
+    }
+    return -1;
+}
+
+// Leetcode 542. 01 Matrix
+vector<vector<int>> updateMatrix(vector<vector<int>>& grid) {
+    if (grid.size() == 0 || grid[0].size() == 0) return {};
+
+    int dir[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+    int n = grid.size();
+    int m = grid[0].size();
+
+    vector<vector<int>> res(n, vector<int>(m, -1));
+
+    list<pair<int, int>> queue;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (grid[i][j] == 0) {
+                queue.push_back({i, j});
+                res[i][j] = 0;
+            }
+        }
+    }
+
+    int ones = n * m - queue.size();
+
+    while (queue.size() != 0) {
+        int size = queue.size();
+        while (size--) {
+            pair<int, int> rem = queue.front();
+            queue.pop_front();
+
+            int x = rem.first;
+            int y = rem.second;
+
+            for (int d = 0; d < 4; d++) {
+                int r = x + dir[d][0];
+                int c = y + dir[d][1];
+
+                if (r >= 0 && r < n && c >= 0 && c < m && res[r][c] == -1) {
+                    res[r][c] = res[x][y] + 1;
+                    ones--;
+                    queue.push_back({r, c});
+                }
+            }
+            if (ones == 0) break;
+        }
+    }
+    return res;
+}
+
+// Leetcode 815. Bus Routes
+int numBusesToDestination(vector<vector<int>>& routes, int src, int dst) {
+    unordered_map<int, vector<int>> standToBus;
+
+    for (int i = 0; i < routes.size(); i++)
+        for (int busStand : routes[i])
+            standToBus[busStand].push_back(i);
+
+    queue<int> que;
+    // visited for stand
+    unordered_set<int> visStand;
+    // visited for bus
+    vector<bool> visBus(routes.size(), false);
+
+    que.push(src);
+    visStand.insert(src);
+    int level = 0;
+
+    while (que.size() != 0) {
+        int size = que.size();
+        while (size--) {
+            int busStand = que.front();
+            que.pop();
+
+            if (busStand == dst)
+                return level;
+
+            for (int bus : standToBus[busStand]) {
+                if (visBus[bus] == true)
+                    continue;
+
+                for (int busSt : routes[bus]) {
+                    if (visStand.find(busSt) == visStand.end()) {
+                        que.push(busSt);
+                        visStand.insert(busSt);
+                    }
+                }
+                visBus[bus] = true;
+            }
+        }
+        level++;
+    }
+    return -1;
+}
 
 int main(int argc, char** argv) {
 }

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 #include <string>
 #include <vector>
 
@@ -200,6 +201,80 @@ int gcc() {
 
     return count;
 }
+
+void bfs_01(int src) {
+    queue<pair<int, string>> que;
+    vector<bool> vis(graph.size(), false);
+
+    que.push({src, to_string(src)});
+
+    while (que.size() != 0) {
+        pair<int, string> rem = que.front();  // 01. get
+        que.pop();                            // 02. remove
+
+        int vtx = rem.first;
+        string path = rem.second;
+
+        if (vis[vtx] == true) {  // 03. mark*
+            continue;            // here we can detect cycle : if continue is hit that means cycle is present
+            cout << "Cycle" << endl;
+        }
+        vis[vtx] = true;
+
+        // 04. work
+        cout << "reach at " << vtx << "from path : " << path << endl;
+
+        // 05. add Neighbours
+        for (Edge e : graph[vtx]) {
+            int nbr = e.nbr;
+            if (vis[nbr] == false)
+                que.push({nbr, path + "->" + to_string(nbr)});
+        }
+    }
+}
+
+void bfs_02(int src) {
+    queue<int> que;
+    vector<bool> vis(graph.size(), false);
+
+    que.push(src);
+    int level = 0;
+    int dst = 6;
+
+    while (que.size() != 0) {
+        int size = que.size();
+
+        while (size--) {
+            int rem = que.front();
+            que.pop();
+
+            if (rem == dst) {
+                cout << "Level " << level << endl;
+                return;
+            }
+
+            if (vis[rem] == true) {
+                continue;
+                cout << "Cycle" << endl;
+            }
+
+            vis[rem] = true;
+
+            for (Edge e : graph[rem]) {
+                int nbr = e.nbr;
+                if (vis[nbr] == false)
+                    que.push(nbr);
+            }
+        }
+        level++;
+    }
+}
+
+
+
+// 06 August 2020
+
+
 
 void solve() {
     // removeVtx(3);
