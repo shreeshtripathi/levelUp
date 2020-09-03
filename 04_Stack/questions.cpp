@@ -4,204 +4,170 @@
 
 using namespace std;
 
-//next greater on right.
-vector<int> ngor(vector<int> &arr)
-{
-    stack<int> st;
-    vector<int> ans(arr.size(), arr.size());
+void display(vector<int>& arr) {
+    for (int val : arr)
+        cout << val << " ";
 
-    for (int i = 0; i < arr.size(); i++)
-    {
-        while (st.size() != 0 && arr[st.top()] < arr[i]) // for smaller replace to '<' to '>'
-        {
-            ans[st.top()] = i;
+    cout << endl;
+}
+
+// next greater left to right
+void ngL2R(vector<int>& arr) {
+    if (arr.size() == 0) return;
+    stack<int> st;
+    st.push(0);
+    vector<int> res(arr.size(), arr.size());
+
+    for (int i = 1; i < arr.size(); i++) {
+        while (st.size() > 0 && arr[st.top()] < arr[i]) {
+            res[st.top()] = i;
             st.pop();
         }
-
         st.push(i);
     }
 
-    return ans;
+    display(res);
 }
 
-vector<int> ngol(vector<int> &arr)
-{
+// next greater right to left
+void ngR2L(vector<int>& arr) {
+    if (arr.size() == 0) return;
     stack<int> st;
-    vector<int> ans(arr.size(), -1);
+    st.push(arr.size() - 1);
+    vector<int> res(arr.size(), -1);
 
-    for (int i = arr.size() - 1; i >= 0; i--)
-    {
-        while (st.size() != 0 && arr[st.top()] < arr[i]) // for smaller replace to '<' to '>'
-        {
-            ans[st.top()] = i;
+    for (int i = arr.size() - 2; i >= 0; i--) {
+        while (st.size() > 0 && arr[st.top()] < arr[i]) {
+            res[st.top()] = i;
             st.pop();
         }
-
         st.push(i);
     }
 
-    return ans;
+    display(res);
 }
 
-bool isValidExpre(string &str)
-{
-    stack<char> st;
-    for (int i = 0; i < str.length(); i++)
-    {
-        char ch = str[i];
+// next smaller left to right
+void nsL2R(vector<int>& arr) {
+    if (arr.size() == 0) return;
+    stack<int> st;
+    st.push(0);
+    vector<int> res(arr.size(), arr.size());
 
-        if (ch == '(' || ch == '[' || ch == '{')
-            st.push(ch);
+    for (int i = 1; i < arr.size(); i++) {
+        while (st.size() > 0 && arr[st.top()] > arr[i]) {
+            res[st.top()] = i;
+            st.pop();
+        }
+        st.push(i);
+    }
+
+    display(res);
+}
+
+// next smaller right to left
+void nsR2L(vector<int>& arr) {
+    if (arr.size() == 0) return;
+    stack<int> st;
+    st.push(arr.size() - 1);
+    vector<int> res(arr.size(), -1);
+
+    for (int i = arr.size() - 2; i >= 0; i--) {
+        while (st.size() > 0 && arr[st.top()] > arr[i]) {
+            res[st.top()] = i;
+            st.pop();
+        }
+        st.push(i);
+    }
+
+    display(res);
+}
+
+// Next Greater from left to right
+// Link : https://practice.geeksforgeeks.org/problems/next-larger-element/0
+void nge(vector<long>& arr) {
+    vector<int> res(arr.size(), -1);
+    stack<int> st;
+    st.push(0);
+
+    for (int i = 1; i < arr.size(); i++) {
+        while (st.size() > 0 && arr[st.top()] < arr[i]) {
+            res[st.top()] = i;
+            st.pop();
+        }
+        st.push(i);
+    }
+
+    for (int i = 0; i < res.size(); i++) {
+        if (res[i] >= 0 && res[i] < arr.size())
+            cout << arr[res[i]] << " ";
         else
-        {
-            if (st.size() == 0)
-                return false;
-            else if (st.top() == '(' && ch != ')')
-                return false;
-            else if (st.top() == '[' && ch != ']')
-                return false;
-            else if (st.top() == '{' && ch != '}')
-                return false;
-            else
-                st.pop();
+            cout << res[i] << " ";
+    }
+
+    cout << endl;
+}
+
+// Leetcode 20. Valid Parentheses
+bool isValid(string s) {
+    stack<char> st;
+    for (int i = 0; i < s.size(); i++) {
+        char ch = s[i];
+        if (ch == '[' || ch == '{' || ch == '(') {
+            st.push(ch);
+        } else if (st.size() > 0 && ch == '}' && st.top() == '{') {
+            st.pop();
+        } else if (st.size() > 0 && ch == ']' && st.top() == '[') {
+            st.pop();
+        } else if (st.size() > 0 && ch == ')' && st.top() == '(') {
+            st.pop();
+        } else {
+            return false;
         }
     }
-
-    return st.size() == 0;
+    return st.size() == 0 ? true : false;
 }
 
-string removeOuterParentheses(string str)
-{
-    string ans = "";
+// Leetcode 1021. Remove Outermost Parentheses
+string removeOuterParentheses(string S) {
+    string str = "";
     int count = 0;
-    for (int i = 0; i < str.length(); i++)
-    {
-        char ch = str[i];
-        if (ch == '(' && count++ > 0)
-            ans += ch;
-        if (ch == ')' && count-- > 1)
-            ans += ch;
+    for (int i = 0; i < S.size(); i++) {
+        char ch = S[i];
+        if (ch == '(' && count++ > 0) str += ch;
+        if (ch == ')' && count-- > 1) str += ch;
     }
-
-    return ans;
+    return str;
 }
 
-vector<int> nextGreaterElements(vector<int> &arr)
-{
-
-    stack<int> st;
+// Leetcode 503. Next Greater Element II
+vector<int> nextGreaterElements(vector<int>& arr) {
     int n = arr.size();
-    vector<int> ans(n, -1);
+    vector<int> res(n, -1);
+    stack<int> st;
+    st.push(0);
 
-    for (int i = 0; i < 2 * n; i++)
-    {
-        while (st.size() != 0 && arr[st.top()] < arr[i % n])
-        {
-            ans[st.top()] = arr[i % n];
+    for (int i = 1; i < 2 * n; i++) {
+        while (st.size() > 0 && arr[st.top()] < arr[i % n]) {
+            res[st.top()] = arr[i % n];
             st.pop();
         }
-
         if (i < n)
             st.push(i);
     }
-
-    return ans;
+    return res;
 }
 
-class StockSpanner
-{
-    stack<pair<int, int>> st; // idx, value
-    // For Java: Stack<int[]> st=new Stack<>(); insert-> st.push(new []{10,6}); st.peek()[1]
-    int i;
 
-public:
-    StockSpanner()
-    {
-        st.push({-1, -1});
-        i = 0;
-    }
 
-    int next(int price)
-    {
-        int ans = 1;
-        while (st.top().first != -1 && st.top().second <= price)
-        {
-            st.pop();
-        }
-        ans = i - st.top().first;
-        st.push({i, price});
-        i++;
-
-        return ans;
-    }
-};
-
-// Leetcode 921. Minimum Add to Make Parentheses Valid=========================
-int minAddToMakeValid(string S)
-{
-    stack<char> st;
-
-    for (int i = 0; i < S.size(); i++)
-    {
-        if (S[i] == '(')
-        {
-            st.push(S[i]);
-        }
-        else if (S[i] = ')' && !st.empty() && st.top() == '(')
-        {
-            st.pop();
-        }
-        else
-        {
-            st.push(S[i]);
-        }
-    }
-    return st.size();
+void solve() {
+    vector<int> arr = {2, -1, 8, 6, 9, 4, 3, 5};
+    // ngL2R(arr);
+    // ngR2L(arr);
+    // nsL2R(arr);
+    // nsR2L(arr);
 }
 
-int minAddToMakeValid_02(string str)
-{
-    int ob = 0; // opening required Bracket
-    int cb = 0; // closing required Bracket
-
-    for (int i = 0; i < str.size(); i++)
-    {
-    }
-}
-
-// Leetcode 1249. Minimum Remove to Make Valid Parentheses===================
-string minRemoveToMakeValid(string str)
-{
-    int n = str.size();
-    vector<bool> marked(n, false);
-
-    stack<int> st;
-    st.push(-1);
-
-    for (int i = 0; i < n; i++)
-    {
-        if (st.top() != -1 && str[i] == ')' && str[st.top()] == '(')
-        {
-            int val = st.top();
-            st.pop();
-            marked[i] = marked[val] = true;
-        }
-        else if (str[i] == '(')
-        {
-            st.push(i);
-        }
-        else if (str[i] != ')')
-        {
-            marked[i] = true;
-        }
-    }
-    string ans = "";
-    for (int i = 0; i < n; i++)
-    {
-        if (marked[i])
-        {
-            ans += str[i];
-        }
-    }
-    return ans;
+int main(int argc, char** argv) {
+    solve();
 }

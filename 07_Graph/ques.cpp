@@ -335,5 +335,116 @@ int numBusesToDestination(vector<vector<int>>& routes, int src, int dst) {
     return -1;
 }
 
+// Leetcode 207. Course Schedule
+bool canFinish_(int n, vector<vector<int>>& prerequisites) {
+    vector<vector<int>> graph(n);
+
+    queue<int> que;
+    vector<int> indegree(n, 0);
+
+    for (vector<int>& edge : prerequisites) {
+        int u = edge[0];
+        int v = edge[1];
+
+        graph[u].push_back(v);
+        indegree[v]++;
+    }
+
+    for (int i = 0; i < indegree.size(); i++) {
+        if (indegree[i] == 0) que.push(i);
+    }
+
+    vector<int> ans;
+    while (que.size() != 0) {
+        int rem = que.front();
+        que.pop();
+
+        ans.push_back(rem);
+
+        for (int nbr : graph[rem]) {
+            if (--indegree[nbr] == 0) que.push(nbr);
+        }
+    }
+
+    if (ans.size() != n) ans.clear();
+
+    return ans.size() != 0;
+}
+
+// Leetcode 207. Course Schedule using DFS(cycle detection in topological sort)
+bool isCycleInTopo(vector<vector<int>>& graph, int src, vector<bool>& vis, vector<bool>& myPath) {
+    vis[src] = myPath[src] = true;
+
+    bool res = false;
+    for (int nbr : graph[src]) {
+        if (!vis[nbr])
+            res = res || isCycleInTopo(graph, nbr, vis, myPath);
+        else if (myPath[nbr])
+            return true;
+    }
+    myPath[src] = false;
+    return res;
+}
+
+bool canFinish(int n, vector<vector<int>>& prerequisites) {
+    vector<vector<int>> graph(n);
+
+    for (vector<int>& edge : prerequisites) {
+        int u = edge[0];
+        int v = edge[1];
+
+        graph[u].push_back(v);
+    }
+
+    vector<bool> vis(n, false);
+    vector<bool> myPath(n, false);
+
+    for (int i = 0; i < n; i++) {
+        if (!vis[i] && isCycleInTopo(graph, i, vis, myPath))
+            return false;
+    }
+    return true;
+}
+
+// Leetcode 210. Course Schedule II
+vector<int> findOrder(int n, vector<vector<int>>& prerequisites) {
+    vector<vector<int>> graph(n);
+
+    queue<int> que;
+    vector<int> indegree(n, 0);
+
+    for (vector<int>& edge : prerequisites) {
+        int v = edge[0];
+        int u = edge[1];
+
+        graph[u].push_back(v);
+        indegree[v]++;
+    }
+
+    for (int i = 0; i < indegree.size(); i++) {
+        if (indegree[i] == 0) que.push(i);
+    }
+
+    vector<int> ans;
+    while (que.size() != 0) {
+        int rem = que.front();
+        que.pop();
+
+        ans.push_back(rem);
+
+        for (int nbr : graph[rem]) {
+            if (--indegree[nbr] == 0) que.push(nbr);
+        }
+    }
+
+    if (ans.size() != n) ans.clear();
+
+    return ans;
+}
+
+// Leetcode 329. Longest Increasing Path in a Matrix
+int longestIncreasingPath(vector<vector<int>>& matrix) {
+}
+
 int main(int argc, char** argv) {
 }

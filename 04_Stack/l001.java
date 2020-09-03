@@ -47,7 +47,7 @@ class MyStack {
         for (; i < this.size - 1; i++) {
             str += this.arr[i] + ", ";
         }
-        str += this.arr[i] + "]";
+        str += this.size >= 0 ? this.arr[i] + "]" : "]";
         return str;
     }
 }
