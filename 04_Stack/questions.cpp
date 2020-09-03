@@ -158,7 +158,15 @@ vector<int> nextGreaterElements(vector<int>& arr) {
     return res;
 }
 
+// Leetcode 901. Online Stock Span
+class StockSpanner {
+   public:
+    StockSpanner() {
+    }
 
+    int next(int price) {
+    }
+};
 
 void solve() {
     vector<int> arr = {2, -1, 8, 6, 9, 4, 3, 5};
